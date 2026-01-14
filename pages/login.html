@@ -1,0 +1,15 @@
+<div class="auth-container">
+    <div class="auth-card text-center">
+        <div class="auth-logo"><i class="fas fa-bolt fa-2x text-warning"></i></div>
+        <h4 class="text-evn fw-bold mb-4">SỔ TAY AN TOÀN ĐIỆN</h4>
+        <button onclick="app.loginWithGoogle()" class="btn btn-google w-100 py-2 mb-3 shadow-sm fw-bold">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20"> Đăng nhập bằng Gmail
+        </button>
+        <div class="d-flex align-items-center mb-3"><div class="flex-grow-1 border-bottom"></div><span class="px-2 text-muted small">hoặc Email</span><div class="flex-grow-1 border-bottom"></div></div>
+        <form id="login-form" onsubmit="app.loginWithEmail(event)">
+            <input type="email" id="login-email" class="form-control mb-3" placeholder="Email">
+            <input type="password" id="login-password" class="form-control mb-3" placeholder="Mật khẩu">
+            <button type="submit" class="btn btn-evn w-100 py-2 fw-bold">ĐĂNG NHẬP</button>
+        </form>
+    </div>
+</div>
