@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 
     <style>
-        /* GIỮ NGUYÊN CSS CŨ */
+        /* CSS CŨ */
         :root { --evn-blue: #0054A6; --evn-blue-dark: #003d7a; --evn-yellow: #F39C12; --evn-red: #D32F2F; --bg-light: #f4f6f9; }
         body { font-family: 'Roboto', sans-serif; background-color: var(--bg-light); -webkit-user-select: none; user-select: none; overflow-x: hidden; }
         .text-evn { color: var(--evn-blue); } .bg-evn { background-color: var(--evn-blue) !important; color: white; }
@@ -31,11 +31,18 @@
         .sidebar-menu-item.active { background: #e8f0fe; color: var(--evn-blue); font-weight: 500; border-left: 5px solid var(--evn-blue); }
         .sidebar-menu-item.admin-link { color: var(--evn-red); font-weight: bold; background: #fff5f5; }
 
-        .news-card { border: none; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 15px; overflow: hidden; background: white; }
-        .news-img { height: 160px; background-color: #ddd; background-position: center; background-size: cover; position: relative; }
+        /* Update News Card */
+        .news-card { border: none; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 15px; overflow: hidden; background: white; cursor: pointer; transition: transform 0.2s; }
+        .news-card:active { transform: scale(0.98); }
+        .news-img { height: 180px; background-color: #eee; background-position: center; background-size: cover; position: relative; }
         .news-badge { position: absolute; top: 10px; left: 10px; background: var(--evn-red); color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; }
         .news-body { padding: 15px; }
+        .news-title { font-weight: bold; margin-bottom: 8px; font-size: 1.1rem; line-height: 1.3; }
+        .news-summary { color: #555; font-size: 0.9rem; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
         
+        /* Admin Controls on Card */
+        .admin-controls { padding: 10px 15px; border-top: 1px solid #eee; background: #f8f9fa; display: flex; justify-content: flex-end; gap: 10px; }
+
         .loader { border: 5px solid #f3f3f3; border-top: 5px solid var(--evn-yellow); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
@@ -43,21 +50,14 @@
         .screen.active, .content-module.active { display: block; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Loading Overlay cho lúc Upload */
-        #upload-overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.7); z-index: 9999;
-            display: none; align-items: center; justify-content: center; flex-direction: column; color: white;
-        }
-
+        #upload-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 9999; display: none; align-items: center; justify-content: center; flex-direction: column; color: white; }
     </style>
 </head>
 <body oncontextmenu="return false">
 
     <div id="upload-overlay">
         <div class="loader"></div>
-        <div class="mt-3 fw-bold">Đang tải lên Server... Vui lòng đợi</div>
-        <small class="text-white opacity-75">(File lớn có thể mất vài phút)</small>
+        <div class="mt-3 fw-bold">Đang xử lý...</div>
     </div>
 
     <div id="screen-login" class="screen active">
@@ -131,12 +131,10 @@
 
             <div id="module-admin" class="content-module">
                 <h5 class="fw-bold text-danger mb-3"><i class="fas fa-user-shield me-2"></i>Khu vực Quản trị</h5>
-                
                 <ul class="nav nav-tabs mb-3" id="adminTabs">
                     <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-post-news">Đăng Tin Tức</button></li>
                     <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-post-doc">Đăng Tài Liệu</button></li>
                 </ul>
-
                 <div class="tab-content">
                     <div class="tab-pane fade show active" id="tab-post-news">
                         <div class="card p-3 shadow-sm border-0">
@@ -145,14 +143,12 @@
                                 <div class="mb-3">
                                     <label class="small fw-bold">Hình ảnh minh họa</label>
                                     <input type="file" id="adm-news-file" class="form-control" accept="image/*" required>
-                                    <small class="text-muted">Chọn ảnh từ máy (JPG, PNG)</small>
                                 </div>
-                                <div class="mb-3"><label class="small fw-bold">Tóm tắt nội dung</label><textarea id="adm-news-summary" class="form-control" rows="3" required></textarea></div>
+                                <div class="mb-3"><label class="small fw-bold">Nội dung</label><textarea id="adm-news-summary" class="form-control" rows="5" required></textarea></div>
                                 <button type="submit" class="btn btn-evn w-100"><i class="fas fa-cloud-upload-alt me-2"></i>Đăng Tin</button>
                             </form>
                         </div>
                     </div>
-                    
                     <div class="tab-pane fade" id="tab-post-doc">
                         <div class="card p-3 shadow-sm border-0">
                             <form id="admin-doc-form">
@@ -165,15 +161,8 @@
                                         <option value="science">Bài báo khoa học</option>
                                     </select>
                                 </div>
-                                <div class="mb-3">
-                                    <label class="small fw-bold">File đính kèm (PDF)</label>
-                                    <input type="file" id="adm-doc-file" class="form-control" accept="application/pdf" required>
-                                    <small class="text-muted">Tự động upload lên Google Drive</small>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="small fw-bold">Tóm tắt nội dung</label>
-                                    <textarea id="adm-doc-summary" class="form-control" rows="4" placeholder="Nội dung chính của văn bản..." required></textarea>
-                                </div>
+                                <div class="mb-3"><label class="small fw-bold">File đính kèm (PDF)</label><input type="file" id="adm-doc-file" class="form-control" accept="application/pdf" required></div>
+                                <div class="mb-3"><label class="small fw-bold">Tóm tắt nội dung</label><textarea id="adm-doc-summary" class="form-control" rows="4" required></textarea></div>
                                 <button type="submit" class="btn btn-success w-100"><i class="fas fa-file-upload me-2"></i>Lưu Tài Liệu</button>
                             </form>
                         </div>
@@ -188,16 +177,51 @@
         </div>
     </div>
 
+    <div class="modal fade" id="newsDetailModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold text-evn" id="detail-title"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <img id="detail-img" src="" class="w-100 rounded mb-3" style="max-height: 300px; object-fit: cover;">
+                    <div id="detail-date" class="small text-muted mb-3 fst-italic"></div>
+                    <div id="detail-content" style="white-space: pre-line;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="newsEditModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title fw-bold">Chỉnh sửa tin tức</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="edit-id">
+                    <div class="mb-3"><label class="small fw-bold">Tiêu đề</label><input type="text" id="edit-title" class="form-control"></div>
+                    <div class="mb-3"><label class="small fw-bold">Nội dung</label><textarea id="edit-content" class="form-control" rows="5"></textarea></div>
+                    <div class="mb-3"><small class="text-danger">* Không hỗ trợ đổi ảnh trong phiên bản này. Vui lòng xóa đăng lại nếu muốn đổi ảnh.</small></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" onclick="updateNews()">Lưu thay đổi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // --- CẤU HÌNH APPS SCRIPT (Giữ nguyên của bạn) ---
         const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz6K4E8o4934WuV1dY5fqi1YIzrVgyBMEzVlg0LVM4REBXMDkM4rdiZQ9BXd2e-bYGNmw/exec"; 
-
-        // --- CẤU HÌNH FIREBASE MỚI (Version 1.6) ---
+        
         const firebaseConfig = {
             apiKey: "AIzaSyCdT1WiSZUm1faQw2joWL8t3D360ydQO8U",
             authDomain: "sotayantoan-dae90.firebaseapp.com",
@@ -207,48 +231,34 @@
             appId: "1:1025561475254:web:04e9b0306559208d2e0e17",
             measurementId: "G-BL7ZM4QBW7"
         };
-        
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        const state = { currentUser: null, userProfile: null };
+        const state = { currentUser: null, userProfile: null, newsList: [] };
         const sidebarBs = new bootstrap.Offcanvas(document.getElementById('sidebarMenu'));
+        const newsDetailModal = new bootstrap.Modal(document.getElementById('newsDetailModal'));
+        const newsEditModal = new bootstrap.Modal(document.getElementById('newsEditModal'));
 
-        // --- HÀM HỖ TRỢ UPLOAD FILE SANG GOOGLE APPS SCRIPT ---
+        // Upload Helper
         async function uploadFileToGAS(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
                 reader.onload = async () => {
-                    const base64 = reader.result.split(',')[1]; // Bỏ header 'data:image/...'
-                    const payload = {
-                        base64: base64,
-                        mimeType: file.type,
-                        filename: file.name
-                    };
-
+                    const base64 = reader.result.split(',')[1];
+                    const payload = { base64: base64, mimeType: file.type, filename: file.name };
                     try {
-                        const response = await fetch(APPS_SCRIPT_URL, {
-                            method: "POST",
-                            body: JSON.stringify(payload)
-                        });
+                        const response = await fetch(APPS_SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
                         const result = await response.json();
-                        
-                        if (result.status === 'success') {
-                            resolve(result);
-                        } else {
-                            reject(result.message);
-                        }
-                    } catch (error) {
-                        reject(error);
-                    }
+                        result.status === 'success' ? resolve(result) : reject(result.message);
+                    } catch (error) { reject(error); }
                 };
                 reader.onerror = error => reject(error);
             });
         }
 
-        // --- CORE UI LOGIC ---
+        // Navigation
         function showScreen(name) { document.querySelectorAll('.screen').forEach(el => el.classList.remove('active')); document.getElementById('screen-' + name).classList.add('active'); }
         function switchModule(name, el) {
             sidebarBs.hide();
@@ -259,13 +269,12 @@
             if(name === 'news') loadNews();
         }
 
+        // Auth
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 state.currentUser = user;
                 await checkUserProfile(user);
-            } else {
-                showScreen('login');
-            }
+            } else { showScreen('login'); }
         });
 
         async function checkUserProfile(user) {
@@ -283,13 +292,7 @@
                     document.getElementById('welcome-name').textContent = user.displayName || "bạn";
                     showScreen('profile');
                 }
-            } catch(e) {
-                console.error("Lỗi lấy profile:", e);
-                // Nếu lỗi do chưa tạo DB thì cũng cho về login để tránh treo
-                if(e.code === 'permission-denied' || e.code === 'unavailable') {
-                    alert("Lỗi kết nối Server! Vui lòng báo quản trị viên bật Firestore.");
-                }
-            }
+            } catch(e) { console.error(e); }
         }
 
         function updateUI(profile, userAuth) {
@@ -301,6 +304,143 @@
             document.getElementById('sidebar-avatar').src = avatar;
         }
 
+        // --- CORE FUNCTIONS (NEWS) ---
+
+        // 1. Load News
+        async function loadNews() {
+            const container = document.getElementById('news-feed');
+            try {
+                const snap = await db.collection('news').orderBy('timestamp', 'desc').limit(20).get();
+                state.newsList = [];
+                
+                if (snap.empty) { container.innerHTML = '<div class="text-center text-muted">Chưa có tin tức nào.</div>'; return; }
+                
+                let html = '';
+                const isAdmin = state.userProfile && state.userProfile.role === 'admin';
+
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    d.id = doc.id; // Save ID
+                    state.newsList.push(d);
+
+                    const date = d.timestamp ? new Date(d.timestamp.seconds * 1000).toLocaleDateString('vi-VN') : '';
+                    // Sử dụng link lh3 để hiển thị ảnh tốt hơn (nếu có fileId)
+                    let imgSrc = d.img;
+                    if (d.fileId) {
+                        imgSrc = `https://lh3.googleusercontent.com/d/${d.fileId}`;
+                    }
+
+                    let adminControls = '';
+                    if (isAdmin) {
+                        adminControls = `
+                        <div class="admin-controls">
+                            <button class="btn btn-sm btn-warning" onclick="event.stopPropagation(); openEditNews('${d.id}')"><i class="fas fa-edit"></i> Sửa</button>
+                            <button class="btn btn-sm btn-danger" onclick="event.stopPropagation(); deleteNews('${d.id}')"><i class="fas fa-trash"></i> Xóa</button>
+                        </div>`;
+                    }
+
+                    html += `
+                    <div class="news-card" onclick="viewNews('${d.id}')">
+                        <div class="news-img" style="background-image: url('${imgSrc}');">
+                            <span class="news-badge">Tin mới</span>
+                        </div>
+                        <div class="news-body">
+                            <div class="news-title">${d.title}</div>
+                            <div class="news-summary">${d.summary}</div>
+                            <div class="news-meta mt-2 small text-muted"><i class="far fa-clock me-1"></i> ${date}</div>
+                        </div>
+                        ${adminControls}
+                    </div>`;
+                });
+                container.innerHTML = html;
+            } catch (err) { console.error(err); }
+        }
+
+        // 2. View News Detail
+        window.viewNews = function(id) {
+            const item = state.newsList.find(x => x.id === id);
+            if (!item) return;
+            
+            document.getElementById('detail-title').textContent = item.title;
+            document.getElementById('detail-content').textContent = item.summary;
+            
+            let imgSrc = item.img;
+            if (item.fileId) imgSrc = `https://lh3.googleusercontent.com/d/${item.fileId}`;
+            document.getElementById('detail-img').src = imgSrc;
+            
+            const date = item.timestamp ? new Date(item.timestamp.seconds * 1000).toLocaleDateString('vi-VN') : '';
+            document.getElementById('detail-date').textContent = "Ngày đăng: " + date;
+
+            newsDetailModal.show();
+        }
+
+        // 3. Post News (Lưu cả fileId)
+        document.getElementById('admin-news-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fileInput = document.getElementById('adm-news-file');
+            if(fileInput.files.length === 0) return alert("Vui lòng chọn ảnh!");
+            
+            document.getElementById('upload-overlay').style.display = 'flex';
+            try {
+                const uploadResult = await uploadFileToGAS(fileInput.files[0]);
+                await db.collection('news').add({
+                    title: document.getElementById('adm-news-title').value, 
+                    img: uploadResult.fileUrl, // Link backup
+                    fileId: uploadResult.fileId, // Dùng ID để hiển thị chuẩn hơn
+                    summary: document.getElementById('adm-news-summary').value,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                alert("Đăng tin thành công!");
+                document.getElementById('admin-news-form').reset();
+                loadNews();
+            } catch (err) { alert("Lỗi: " + err); } 
+            finally { document.getElementById('upload-overlay').style.display = 'none'; }
+        });
+
+        // 4. Delete News
+        window.deleteNews = async function(id) {
+            if(!confirm("Bạn có chắc chắn muốn xóa tin này không?")) return;
+            try {
+                await db.collection('news').doc(id).delete();
+                alert("Đã xóa!");
+                loadNews();
+            } catch(e) { alert("Lỗi xóa: " + e.message); }
+        }
+
+        // 5. Open Edit Modal
+        window.openEditNews = function(id) {
+            const item = state.newsList.find(x => x.id === id);
+            if (!item) return;
+            document.getElementById('edit-id').value = id;
+            document.getElementById('edit-title').value = item.title;
+            document.getElementById('edit-content').value = item.summary;
+            newsEditModal.show();
+        }
+
+        // 6. Update News
+        window.updateNews = async function() {
+            const id = document.getElementById('edit-id').value;
+            const title = document.getElementById('edit-title').value;
+            const content = document.getElementById('edit-content').value;
+
+            try {
+                await db.collection('news').doc(id).update({
+                    title: title,
+                    summary: content
+                });
+                alert("Cập nhật thành công!");
+                newsEditModal.hide();
+                loadNews();
+            } catch(e) { alert("Lỗi cập nhật: " + e.message); }
+        }
+
+        // --- FORM SUBMIT LOGIC (LOGIN & PROFILE & DOCS) ---
+        function loginWithGoogle() { 
+            const provider = new firebase.auth.GoogleAuthProvider();
+            provider.setCustomParameters({ prompt: 'select_account' });
+            auth.signInWithPopup(provider).catch(e => alert("Lỗi: " + e.message)); 
+        }
+        document.getElementById('login-form').addEventListener('submit', (e) => { e.preventDefault(); auth.signInWithEmailAndPassword(document.getElementById('login-email').value, document.getElementById('login-password').value).catch(e=>alert(e.message)); });
         document.getElementById('profile-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const data = {
@@ -315,55 +455,17 @@
             state.userProfile = data;
             showScreen('dashboard');
         });
-
-        function loginWithGoogle() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
-        document.getElementById('login-form').addEventListener('submit', (e) => { e.preventDefault(); auth.signInWithEmailAndPassword(document.getElementById('login-email').value, document.getElementById('login-password').value); });
-        function handleLogout() { auth.signOut(); sidebarBs.hide(); }
-
-        // --- ADMIN FUNCTIONS ---
-
-        // 1. Upload & Đăng Tin
-        document.getElementById('admin-news-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const title = document.getElementById('adm-news-title').value;
-            const summary = document.getElementById('adm-news-summary').value;
-            const fileInput = document.getElementById('adm-news-file');
-
-            if(fileInput.files.length === 0) return alert("Vui lòng chọn ảnh!");
-            document.getElementById('upload-overlay').style.display = 'flex';
-
-            try {
-                const uploadResult = await uploadFileToGAS(fileInput.files[0]);
-                await db.collection('news').add({
-                    title: title, 
-                    img: uploadResult.fileUrl,
-                    summary: summary,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                alert("Đăng tin thành công!");
-                document.getElementById('admin-news-form').reset();
-                loadNews();
-            } catch (err) { alert("Lỗi: " + err); } 
-            finally { document.getElementById('upload-overlay').style.display = 'none'; }
-        });
-
-        // 2. Upload & Lưu Tài Liệu
         document.getElementById('admin-doc-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const title = document.getElementById('adm-doc-title').value;
-            const category = document.getElementById('adm-doc-cat').value;
-            const summary = document.getElementById('adm-doc-summary').value;
             const fileInput = document.getElementById('adm-doc-file');
-
-            if(fileInput.files.length === 0) return alert("Vui lòng chọn file PDF!");
+            if(fileInput.files.length === 0) return alert("Chưa chọn file!");
             document.getElementById('upload-overlay').style.display = 'flex';
-
             try {
                 const uploadResult = await uploadFileToGAS(fileInput.files[0]);
                 await db.collection('documents').add({
-                    title: title,
-                    category: category,
-                    summary: summary,
+                    title: document.getElementById('adm-doc-title').value,
+                    category: document.getElementById('adm-doc-cat').value,
+                    summary: document.getElementById('adm-doc-summary').value,
                     fileId: uploadResult.fileId,
                     viewUrl: uploadResult.viewUrl,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
@@ -373,33 +475,7 @@
             } catch (err) { alert("Lỗi: " + err); } 
             finally { document.getElementById('upload-overlay').style.display = 'none'; }
         });
-
-        // --- PUBLIC FUNCTIONS ---
-        async function loadNews() {
-            const container = document.getElementById('news-feed');
-            try {
-                const snap = await db.collection('news').orderBy('timestamp', 'desc').limit(10).get();
-                if (snap.empty) { container.innerHTML = '<div class="text-center text-muted">Chưa có tin tức nào.</div>'; return; }
-                
-                let html = '';
-                snap.forEach(doc => {
-                    const d = doc.data();
-                    const date = d.timestamp ? new Date(d.timestamp.seconds * 1000).toLocaleDateString('vi-VN') : '';
-                    html += `
-                    <div class="news-card">
-                        <div class="news-img" style="background-image: url('${d.img}');">
-                            <span class="news-badge">Mới</span>
-                        </div>
-                        <div class="news-body">
-                            <div class="news-title">${d.title}</div>
-                            <p class="small text-muted mb-2 text-truncate">${d.summary}</p>
-                            <div class="news-meta"><i class="far fa-clock me-1"></i> ${date}</div>
-                        </div>
-                    </div>`;
-                });
-                container.innerHTML = html;
-            } catch (err) { console.error(err); }
-        }
+        function handleLogout() { auth.signOut(); sidebarBs.hide(); }
 
     </script>
 </body>
