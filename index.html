@@ -6,209 +6,52 @@
     <title>Sổ Tay An Toàn Điện (ESA)</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-
-    <style>
-        /* CSS CHUẨN */
-        :root { --evn-blue: #0054A6; --evn-blue-dark: #003d7a; --evn-yellow: #F39C12; --evn-red: #D32F2F; --bg-light: #f4f6f9; }
-        body { font-family: 'Roboto', sans-serif; background-color: var(--bg-light); -webkit-user-select: none; user-select: none; overflow-x: hidden; }
-        .text-evn { color: var(--evn-blue); } .bg-evn { background-color: var(--evn-blue) !important; color: white; }
-        .btn-evn { background-color: var(--evn-blue); color: white; border: none; } .btn-evn:hover { background-color: var(--evn-blue-dark); color: white; }
-        .btn-warning { background-color: var(--evn-yellow); color: #fff; border: none; }
-        .btn-google { background: #fff; color: #757575; border: 1px solid #ddd; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        
-        .auth-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--evn-blue) 0%, #002d5a 100%); padding: 20px; }
-        .auth-card { background: white; border-radius: 15px; padding: 30px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-        .auth-logo { width: 80px; height: 80px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: -70px auto 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); border: 3px solid var(--evn-yellow); }
-
-        .app-header { background: var(--evn-blue); color: white; padding: 10px 15px; position: sticky; top: 0; z-index: 1030; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
-        
-        .offcanvas { max-width: 280px; }
-        .offcanvas-header { background: var(--evn-blue); color: white; }
-        .sidebar-user-info { background: var(--evn-blue-dark); padding: 15px; text-align: center; color: white; }
-        .sidebar-menu-item { padding: 15px 20px; border-bottom: 1px solid #eee; color: #333; cursor: pointer; display: flex; align-items: center; }
-        .sidebar-menu-item:hover { background: #f8f9fa; color: var(--evn-blue); padding-left: 25px; transition: 0.2s; }
-        .sidebar-menu-item.active { background: #e8f0fe; color: var(--evn-blue); font-weight: 500; border-left: 5px solid var(--evn-blue); }
-        .sidebar-menu-item.admin-link { color: var(--evn-red); font-weight: bold; background: #fff5f5; }
-
-        /* News Card Cải Tiến */
-        .news-card { border: none; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 15px; overflow: hidden; background: white; cursor: pointer; transition: transform 0.2s; }
-        .news-card:active { transform: scale(0.98); }
-        .news-img { height: 200px; background-color: #eee; background-position: center; background-size: cover; position: relative; }
-        .news-badge { position: absolute; top: 10px; left: 10px; background: var(--evn-red); color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; }
-        .news-body { padding: 15px; }
-        .news-title { font-weight: bold; margin-bottom: 8px; font-size: 1.1rem; line-height: 1.3; color: #333; }
-        .news-summary { color: #555; font-size: 0.9rem; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-        
-        /* Admin Controls */
-        .admin-controls { padding: 10px 15px; border-top: 1px solid #eee; background: #f8f9fa; display: flex; justify-content: flex-end; gap: 10px; }
-
-        .loader { border: 5px solid #f3f3f3; border-top: 5px solid var(--evn-yellow); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        .screen, .content-module { display: none; }
-        .screen.active, .content-module.active { display: block; animation: fadeIn 0.3s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        #upload-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 9999; display: none; align-items: center; justify-content: center; flex-direction: column; color: white; }
-    </style>
+    <link href="css/style.css" rel="stylesheet">
 </head>
-<body oncontextmenu="return false">
+<body>
 
     <div id="upload-overlay">
         <div class="loader"></div>
         <div class="mt-3 fw-bold">Đang xử lý dữ liệu...</div>
     </div>
 
-    <div id="screen-login" class="screen active">
-        <div class="auth-container">
-            <div class="auth-card text-center">
-                <div class="auth-logo"><i class="fas fa-bolt fa-2x text-warning"></i></div>
-                <h4 class="text-evn fw-bold mb-4">SỔ TAY AN TOÀN ĐIỆN</h4>
-                <button onclick="loginWithGoogle()" class="btn btn-google w-100 py-2 mb-3 shadow-sm fw-bold">
-                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20"> Đăng nhập bằng Gmail
-                </button>
-                <div class="d-flex align-items-center mb-3"><div class="flex-grow-1 border-bottom"></div><span class="px-2 text-muted small">hoặc Email</span><div class="flex-grow-1 border-bottom"></div></div>
-                <form id="login-form">
-                    <input type="email" id="login-email" class="form-control mb-3" placeholder="Email">
-                    <input type="password" id="login-password" class="form-control mb-3" placeholder="Mật khẩu">
-                    <button type="submit" class="btn btn-evn w-100 py-2 fw-bold">ĐĂNG NHẬP</button>
-                </form>
-            </div>
+    <div id="app-container">
         </div>
-    </div>
 
-    <div id="screen-profile" class="screen">
-        <div class="auth-container">
-            <div class="auth-card">
-                <h5 class="text-evn fw-bold text-center mb-3">THÔNG TIN HỌC VIÊN</h5>
-                <p class="text-muted small text-center mb-4">Xin chào <span id="welcome-name" class="fw-bold"></span>! Vui lòng hoàn tất hồ sơ.</p>
-                <form id="profile-form">
-                    <input type="text" id="pf-fullname" class="form-control mb-3" placeholder="Họ tên" required>
-                    <input type="email" id="pf-email" class="form-control mb-3" readonly disabled>
-                    <input type="tel" id="pf-phone" class="form-control mb-3" placeholder="Số điện thoại" required>
-                    <input type="text" id="pf-workplace" class="form-control mb-3" placeholder="Đơn vị công tác" required>
-                    <input type="text" id="pf-position" class="form-control mb-3" placeholder="Chức vụ" required>
-                    <button type="submit" class="btn btn-warning w-100 fw-bold">LƯU & TRUY CẬP</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <div id="screen-dashboard" class="screen">
-        <div class="app-header">
+    <div id="main-layout" style="display: none;">
+        <div class="app-header bg-evn text-white p-2 d-flex justify-content-between align-items-center sticky-top">
             <button class="btn btn-link text-white p-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu"><i class="fas fa-bars fa-lg"></i></button>
             <div class="fw-bold"><i class="fas fa-shield-alt text-warning me-2"></i>ESA MOBILE</div>
-            <img id="header-avatar" src="" class="rounded-circle" width="32" height="32" style="border: 2px solid white; display: none;">
+            <img id="header-avatar" src="" class="rounded-circle" width="32" height="32" style="border: 2px solid white;">
         </div>
 
         <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarMenu">
-            <div class="offcanvas-header"><h6 class="offcanvas-title fw-bold">MENU CHÍNH</h6><button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button></div>
-            <div class="sidebar-user-info">
+            <div class="offcanvas-header bg-evn text-white">
+                <h6 class="offcanvas-title fw-bold">MENU CHÍNH</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+            </div>
+            <div class="sidebar-user-info bg-primary p-3 text-white text-center">
                 <img id="sidebar-avatar" src="" class="rounded-circle mb-2 bg-white p-1" width="60" height="60">
                 <div class="fw-bold" id="sidebar-name">...</div>
-                <div class="small opacity-75" id="sidebar-unit">...</div>
             </div>
             <div class="offcanvas-body p-0">
                 <div class="list-group list-group-flush">
-                    <div class="sidebar-menu-item active" onclick="switchModule('news', this)"><i class="fas fa-newspaper text-primary me-3"></i> Tin tức nổi bật</div>
-                    <div class="sidebar-menu-item" onclick="switchModule('legal', this)"><i class="fas fa-gavel text-success me-3"></i> Văn bản pháp luật</div>
-                    <div class="sidebar-menu-item" onclick="switchModule('case', this)"><i class="fas fa-radiation text-danger me-3"></i> Tình huống sự cố</div>
-                    <div class="sidebar-menu-item" onclick="switchModule('science', this)"><i class="fas fa-flask text-info me-3"></i> Bài báo khoa học</div>
-                    <div class="sidebar-menu-item" onclick="switchModule('qa', this)"><i class="fas fa-question-circle text-warning me-3"></i> Hỏi đáp</div>
-                    <div id="admin-menu-link" class="sidebar-menu-item admin-link d-none" onclick="switchModule('admin', this)"><i class="fas fa-tools text-danger me-3"></i> Quản trị hệ thống</div>
-                    <div class="sidebar-menu-item mt-3 border-top" onclick="handleLogout()"><i class="fas fa-sign-out-alt text-danger me-3"></i> Đăng xuất</div>
+                    <button class="list-group-item list-group-item-action" onclick="app.loadPage('news')"><i class="fas fa-newspaper text-primary me-2"></i> Tin tức</button>
+                    <button class="list-group-item list-group-item-action" onclick="app.loadPage('legal')"><i class="fas fa-gavel text-success me-2"></i> Pháp luật</button>
+                    <button id="admin-menu-link" class="list-group-item list-group-item-action d-none fw-bold text-danger" onclick="app.loadPage('admin')"><i class="fas fa-tools me-2"></i> Quản trị</button>
+                    <button class="list-group-item list-group-item-action text-danger" onclick="app.logout()"><i class="fas fa-sign-out-alt me-2"></i> Đăng xuất</button>
                 </div>
             </div>
         </div>
-
-        <div class="container py-3">
-            
-            <div id="module-news" class="content-module active">
-                <h6 class="text-uppercase fw-bold text-muted mb-3 border-start border-4 border-warning ps-2">Tin mới nhất</h6>
-                <div id="news-feed"><div class="text-center"><div class="loader"></div></div></div>
-            </div>
-
-            <div id="module-admin" class="content-module">
-                <h5 class="fw-bold text-danger mb-3"><i class="fas fa-user-shield me-2"></i>Khu vực Quản trị</h5>
-                <ul class="nav nav-tabs mb-3" id="adminTabs">
-                    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-post-news">Đăng Tin Tức</button></li>
-                    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-post-doc">Đăng Tài Liệu</button></li>
-                </ul>
-                <div class="tab-content">
-                    <div class="tab-pane fade show active" id="tab-post-news">
-                        <div class="card p-3 shadow-sm border-0">
-                            <form id="admin-news-form">
-                                <div class="mb-3"><label class="small fw-bold">Tiêu đề tin</label><input type="text" id="adm-news-title" class="form-control" required></div>
-                                <div class="mb-3">
-                                    <label class="small fw-bold">Hình ảnh minh họa</label>
-                                    <input type="file" id="adm-news-file" class="form-control" accept="image/*" required>
-                                </div>
-                                <div class="mb-3"><label class="small fw-bold">Nội dung</label><textarea id="adm-news-summary" class="form-control" rows="5" required></textarea></div>
-                                <button type="submit" class="btn btn-evn w-100"><i class="fas fa-cloud-upload-alt me-2"></i>Đăng Tin</button>
-                            </form>
-                        </div>
-                    </div>
-                    <div class="tab-pane fade" id="tab-post-doc">
-                        <div class="card p-3 shadow-sm border-0">
-                            <form id="admin-doc-form">
-                                <div class="mb-3"><label class="small fw-bold">Tên tài liệu / Văn bản</label><input type="text" id="adm-doc-title" class="form-control" required></div>
-                                <div class="mb-3">
-                                    <label class="small fw-bold">Danh mục</label>
-                                    <select id="adm-doc-cat" class="form-select">
-                                        <option value="legal">Văn bản pháp luật</option>
-                                        <option value="case">Tình huống / Sự cố</option>
-                                        <option value="science">Bài báo khoa học</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3"><label class="small fw-bold">File đính kèm (PDF)</label><input type="file" id="adm-doc-file" class="form-control" accept="application/pdf" required></div>
-                                <div class="mb-3"><label class="small fw-bold">Tóm tắt nội dung</label><textarea id="adm-doc-summary" class="form-control" rows="4" required></textarea></div>
-                                <button type="submit" class="btn btn-success w-100"><i class="fas fa-file-upload me-2"></i>Lưu Tài Liệu</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="module-legal" class="content-module"><div class="alert alert-info">Đang cập nhật...</div></div>
-            <div id="module-case" class="content-module"><div class="alert alert-info">Đang cập nhật...</div></div>
-            <div id="module-science" class="content-module"><div class="alert alert-info">Đang cập nhật...</div></div>
-            <div id="module-qa" class="content-module"><div class="alert alert-info">Đang phát triển...</div></div>
-        </div>
+        
+        <div id="main-content"></div>
     </div>
-
+    
     <div class="modal fade" id="newsDetailModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-scrollable modal-lg">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title fw-bold text-evn" id="detail-title"></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <img id="detail-img" src="" class="w-100 rounded mb-3" style="max-height: 400px; object-fit: contain; background: #f0f0f0;">
-                    <div id="detail-date" class="small text-muted mb-3 fst-italic"></div>
-                    <div id="detail-content" style="white-space: pre-line; text-align: justify;"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="newsEditModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-warning">
-                    <h5 class="modal-title fw-bold">Chỉnh sửa tin tức</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" id="edit-id">
-                    <div class="mb-3"><label class="small fw-bold">Tiêu đề</label><input type="text" id="edit-title" class="form-control"></div>
-                    <div class="mb-3"><label class="small fw-bold">Nội dung</label><textarea id="edit-content" class="form-control" rows="5"></textarea></div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="button" class="btn btn-primary" onclick="updateNews()">Lưu thay đổi</button>
-                </div>
+                <div class="modal-header"><h5 class="modal-title fw-bold" id="detail-title"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body"><img id="detail-img" class="w-100 mb-3"><div id="detail-content"></div></div>
             </div>
         </div>
     </div>
@@ -217,269 +60,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-    <script>
-        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz6K4E8o4934WuV1dY5fqi1YIzrVgyBMEzVlg0LVM4REBXMDkM4rdiZQ9BXd2e-bYGNmw/exec"; 
-        
-        const firebaseConfig = {
-            apiKey: "AIzaSyCdT1WiSZUm1faQw2joWL8t3D360ydQO8U",
-            authDomain: "sotayantoan-dae90.firebaseapp.com",
-            projectId: "sotayantoan-dae90",
-            storageBucket: "sotayantoan-dae90.firebasestorage.app",
-            messagingSenderId: "1025561475254",
-            appId: "1:1025561475254:web:04e9b0306559208d2e0e17",
-            measurementId: "G-BL7ZM4QBW7"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-
-        const state = { currentUser: null, userProfile: null, newsList: [] };
-        const sidebarBs = new bootstrap.Offcanvas(document.getElementById('sidebarMenu'));
-        const newsDetailModal = new bootstrap.Modal(document.getElementById('newsDetailModal'));
-        const newsEditModal = new bootstrap.Modal(document.getElementById('newsEditModal'));
-
-        // Upload Helper
-        async function uploadFileToGAS(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = async () => {
-                    const base64 = reader.result.split(',')[1];
-                    const payload = { base64: base64, mimeType: file.type, filename: file.name };
-                    try {
-                        const response = await fetch(APPS_SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
-                        const result = await response.json();
-                        result.status === 'success' ? resolve(result) : reject(result.message);
-                    } catch (error) { reject(error); }
-                };
-                reader.onerror = error => reject(error);
-            });
-        }
-
-        // Navigation
-        function showScreen(name) { document.querySelectorAll('.screen').forEach(el => el.classList.remove('active')); document.getElementById('screen-' + name).classList.add('active'); }
-        function switchModule(name, el) {
-            sidebarBs.hide();
-            document.querySelectorAll('.sidebar-menu-item').forEach(e => e.classList.remove('active'));
-            if(el) el.classList.add('active');
-            document.querySelectorAll('.content-module').forEach(e => e.classList.remove('active'));
-            document.getElementById('module-' + name).classList.add('active');
-            if(name === 'news') loadNews();
-        }
-
-        // Auth
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                state.currentUser = user;
-                await checkUserProfile(user);
-            } else { showScreen('login'); }
-        });
-
-        async function checkUserProfile(user) {
-            try {
-                const doc = await db.collection('users').doc(user.uid).get();
-                if (doc.exists) {
-                    state.userProfile = doc.data();
-                    updateUI(state.userProfile, user);
-                    showScreen('dashboard');
-                    loadNews();
-                    if (state.userProfile.role === 'admin') document.getElementById('admin-menu-link').classList.remove('d-none');
-                } else {
-                    document.getElementById('pf-fullname').value = user.displayName || "";
-                    document.getElementById('pf-email').value = user.email || "";
-                    document.getElementById('welcome-name').textContent = user.displayName || "bạn";
-                    showScreen('profile');
-                }
-            } catch(e) { console.error(e); }
-        }
-
-        function updateUI(profile, userAuth) {
-            const avatar = userAuth.photoURL || "https://via.placeholder.com/60";
-            document.getElementById('header-avatar').src = avatar;
-            document.getElementById('header-avatar').style.display = 'block';
-            document.getElementById('sidebar-name').textContent = profile.fullName;
-            document.getElementById('sidebar-unit').textContent = profile.workplace;
-            document.getElementById('sidebar-avatar').src = avatar;
-        }
-
-        // --- CORE FUNCTIONS (NEWS) ---
-
-        // 1. Load News
-        async function loadNews() {
-            const container = document.getElementById('news-feed');
-            try {
-                const snap = await db.collection('news').orderBy('timestamp', 'desc').limit(20).get();
-                state.newsList = [];
-                
-                if (snap.empty) { container.innerHTML = '<div class="text-center text-muted">Chưa có tin tức nào.</div>'; return; }
-                
-                let html = '';
-                const isAdmin = state.userProfile && state.userProfile.role === 'admin';
-
-                snap.forEach(doc => {
-                    const d = doc.data();
-                    d.id = doc.id; // Save ID
-                    state.newsList.push(d);
-
-                    const date = d.timestamp ? new Date(d.timestamp.seconds * 1000).toLocaleDateString('vi-VN') : '';
-                    
-                    // --- XỬ LÝ ẢNH (QUAN TRỌNG) ---
-                    let imgSrc = d.img; // Link mặc định
-                    if (d.fileId) {
-                        // Sử dụng server ảnh lh3 để hiển thị trực tiếp tốt hơn
-                        imgSrc = `https://lh3.googleusercontent.com/d/${d.fileId}`;
-                    }
-                    // -----------------------------
-
-                    let adminControls = '';
-                    if (isAdmin) {
-                        adminControls = `
-                        <div class="admin-controls">
-                            <button class="btn btn-sm btn-warning" onclick="event.stopPropagation(); openEditNews('${d.id}')"><i class="fas fa-edit"></i> Sửa</button>
-                            <button class="btn btn-sm btn-danger" onclick="event.stopPropagation(); deleteNews('${d.id}')"><i class="fas fa-trash"></i> Xóa</button>
-                        </div>`;
-                    }
-
-                    html += `
-                    <div class="news-card" onclick="viewNews('${d.id}')">
-                        <div class="news-img" style="background-image: url('${imgSrc}');">
-                            <span class="news-badge">Tin mới</span>
-                        </div>
-                        <div class="news-body">
-                            <div class="news-title">${d.title}</div>
-                            <div class="news-summary">${d.summary}</div>
-                            <div class="news-meta mt-2 small text-muted"><i class="far fa-clock me-1"></i> ${date}</div>
-                        </div>
-                        ${adminControls}
-                    </div>`;
-                });
-                container.innerHTML = html;
-            } catch (err) { console.error(err); }
-        }
-
-        // 2. View News Detail
-        window.viewNews = function(id) {
-            const item = state.newsList.find(x => x.id === id);
-            if (!item) return;
-            
-            document.getElementById('detail-title').textContent = item.title;
-            document.getElementById('detail-content').textContent = item.summary;
-            
-            // Xử lý ảnh trong Modal
-            let imgSrc = item.img;
-            if (item.fileId) imgSrc = `https://lh3.googleusercontent.com/d/${item.fileId}`;
-            document.getElementById('detail-img').src = imgSrc;
-            
-            const date = item.timestamp ? new Date(item.timestamp.seconds * 1000).toLocaleDateString('vi-VN') : '';
-            document.getElementById('detail-date').textContent = "Ngày đăng: " + date;
-
-            newsDetailModal.show();
-        }
-
-        // 3. Post News
-        document.getElementById('admin-news-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const fileInput = document.getElementById('adm-news-file');
-            if(fileInput.files.length === 0) return alert("Vui lòng chọn ảnh!");
-            
-            document.getElementById('upload-overlay').style.display = 'flex';
-            try {
-                const uploadResult = await uploadFileToGAS(fileInput.files[0]);
-                await db.collection('news').add({
-                    title: document.getElementById('adm-news-title').value, 
-                    img: uploadResult.fileUrl, // Link backup
-                    fileId: uploadResult.fileId, // Lưu ID để dùng cho lh3
-                    summary: document.getElementById('adm-news-summary').value,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                alert("Đăng tin thành công!");
-                document.getElementById('admin-news-form').reset();
-                loadNews();
-            } catch (err) { alert("Lỗi: " + err); } 
-            finally { document.getElementById('upload-overlay').style.display = 'none'; }
-        });
-
-        // 4. Delete News
-        window.deleteNews = async function(id) {
-            if(!confirm("Bạn có chắc chắn muốn xóa tin này không?")) return;
-            try {
-                await db.collection('news').doc(id).delete();
-                alert("Đã xóa!");
-                loadNews();
-            } catch(e) { alert("Lỗi xóa: " + e.message); }
-        }
-
-        // 5. Open Edit Modal
-        window.openEditNews = function(id) {
-            const item = state.newsList.find(x => x.id === id);
-            if (!item) return;
-            document.getElementById('edit-id').value = id;
-            document.getElementById('edit-title').value = item.title;
-            document.getElementById('edit-content').value = item.summary;
-            newsEditModal.show();
-        }
-
-        // 6. Update News
-        window.updateNews = async function() {
-            const id = document.getElementById('edit-id').value;
-            const title = document.getElementById('edit-title').value;
-            const content = document.getElementById('edit-content').value;
-
-            try {
-                await db.collection('news').doc(id).update({
-                    title: title,
-                    summary: content
-                });
-                alert("Cập nhật thành công!");
-                newsEditModal.hide();
-                loadNews();
-            } catch(e) { alert("Lỗi cập nhật: " + e.message); }
-        }
-
-        // --- FORM SUBMIT LOGIC ---
-        function loginWithGoogle() { 
-            const provider = new firebase.auth.GoogleAuthProvider();
-            provider.setCustomParameters({ prompt: 'select_account' });
-            auth.signInWithPopup(provider).catch(e => alert("Lỗi: " + e.message)); 
-        }
-        document.getElementById('login-form').addEventListener('submit', (e) => { e.preventDefault(); auth.signInWithEmailAndPassword(document.getElementById('login-email').value, document.getElementById('login-password').value).catch(e=>alert(e.message)); });
-        document.getElementById('profile-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const data = {
-                email: state.currentUser.email,
-                fullName: document.getElementById('pf-fullname').value,
-                phone: document.getElementById('pf-phone').value,
-                workplace: document.getElementById('pf-workplace').value,
-                position: document.getElementById('pf-position').value,
-                role: 'student', createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            };
-            await db.collection('users').doc(state.currentUser.uid).set(data);
-            state.userProfile = data;
-            showScreen('dashboard');
-        });
-        document.getElementById('admin-doc-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const fileInput = document.getElementById('adm-doc-file');
-            if(fileInput.files.length === 0) return alert("Chưa chọn file!");
-            document.getElementById('upload-overlay').style.display = 'flex';
-            try {
-                const uploadResult = await uploadFileToGAS(fileInput.files[0]);
-                await db.collection('documents').add({
-                    title: document.getElementById('adm-doc-title').value,
-                    category: document.getElementById('adm-doc-cat').value,
-                    summary: document.getElementById('adm-doc-summary').value,
-                    fileId: uploadResult.fileId,
-                    viewUrl: uploadResult.viewUrl,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                alert("Lưu tài liệu thành công!");
-                document.getElementById('admin-doc-form').reset();
-            } catch (err) { alert("Lỗi: " + err); } 
-            finally { document.getElementById('upload-overlay').style.display = 'none'; }
-        });
-        function handleLogout() { auth.signOut(); sidebarBs.hide(); }
-
-    </script>
+    
+    <script src="js/config.js"></script>
+    <script src="js/app.js"></script>
 </body>
 </html>
