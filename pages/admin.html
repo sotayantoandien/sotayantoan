@@ -1,0 +1,26 @@
+<div class="container py-3">
+    <h5 class="fw-bold text-danger mb-3"><i class="fas fa-user-shield me-2"></i>Khu vực Quản trị</h5>
+    <ul class="nav nav-tabs mb-3" id="adminTabs">
+        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-post-news">Đăng Tin Tức</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-post-doc">Đăng Tài Liệu</button></li>
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane fade show active" id="tab-post-news">
+            <div class="card p-3 shadow-sm border-0">
+                <form id="admin-news-form" onsubmit="app.postNews(event)">
+                    <div class="mb-3"><label class="small fw-bold">Tiêu đề tin</label><input type="text" id="adm-news-title" class="form-control" required></div>
+                    <div class="mb-3">
+                        <label class="small fw-bold">Hình ảnh minh họa</label>
+                        <input type="file" id="adm-news-file" class="form-control" accept="image/*" required>
+                    </div>
+                    <div class="mb-3"><label class="small fw-bold">Nội dung</label><textarea id="adm-news-summary" class="form-control" rows="5" required></textarea></div>
+                    <button type="submit" class="btn btn-evn w-100"><i class="fas fa-cloud-upload-alt me-2"></i>Đăng Tin</button>
+                </form>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="tab-post-doc">
+            <div class="alert alert-info">Chức năng đang cập nhật tách file...</div>
+        </div>
+    </div>
+</div>
