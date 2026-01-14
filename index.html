@@ -194,10 +194,20 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // --- CẤU HÌNH ĐÃ CẬP NHẬT ---
+        // --- CẤU HÌNH APPS SCRIPT (Giữ nguyên của bạn) ---
         const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz6K4E8o4934WuV1dY5fqi1YIzrVgyBMEzVlg0LVM4REBXMDkM4rdiZQ9BXd2e-bYGNmw/exec"; 
 
-        const firebaseConfig = { apiKey: "AIzaSyCzWjfcD5Dgq7V-i2izb9tKLR6QM6qWPQo", authDomain: "tavietnam-78ae8.firebaseapp.com", projectId: "tavietnam-78ae8", storageBucket: "tavietnam-78ae8.firebasestorage.app", messagingSenderId: "670121705534", appId: "1:670121705534:web:1027ad98550573ad37116f" };
+        // --- CẤU HÌNH FIREBASE MỚI (Version 1.6) ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyCdT1WiSZUm1faQw2joWL8t3D360ydQO8U",
+            authDomain: "sotayantoan-dae90.firebaseapp.com",
+            projectId: "sotayantoan-dae90",
+            storageBucket: "sotayantoan-dae90.firebasestorage.app",
+            messagingSenderId: "1025561475254",
+            appId: "1:1025561475254:web:04e9b0306559208d2e0e17",
+            measurementId: "G-BL7ZM4QBW7"
+        };
+        
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
@@ -259,18 +269,26 @@
         });
 
         async function checkUserProfile(user) {
-            const doc = await db.collection('users').doc(user.uid).get();
-            if (doc.exists) {
-                state.userProfile = doc.data();
-                updateUI(state.userProfile, user);
-                showScreen('dashboard');
-                loadNews();
-                if (state.userProfile.role === 'admin') document.getElementById('admin-menu-link').classList.remove('d-none');
-            } else {
-                document.getElementById('pf-fullname').value = user.displayName || "";
-                document.getElementById('pf-email').value = user.email || "";
-                document.getElementById('welcome-name').textContent = user.displayName || "bạn";
-                showScreen('profile');
+            try {
+                const doc = await db.collection('users').doc(user.uid).get();
+                if (doc.exists) {
+                    state.userProfile = doc.data();
+                    updateUI(state.userProfile, user);
+                    showScreen('dashboard');
+                    loadNews();
+                    if (state.userProfile.role === 'admin') document.getElementById('admin-menu-link').classList.remove('d-none');
+                } else {
+                    document.getElementById('pf-fullname').value = user.displayName || "";
+                    document.getElementById('pf-email').value = user.email || "";
+                    document.getElementById('welcome-name').textContent = user.displayName || "bạn";
+                    showScreen('profile');
+                }
+            } catch(e) {
+                console.error("Lỗi lấy profile:", e);
+                // Nếu lỗi do chưa tạo DB thì cũng cho về login để tránh treo
+                if(e.code === 'permission-denied' || e.code === 'unavailable') {
+                    alert("Lỗi kết nối Server! Vui lòng báo quản trị viên bật Firestore.");
+                }
             }
         }
 
