@@ -1,5 +1,6 @@
 <div class="container py-3">
     <h5 class="fw-bold text-danger mb-3"><i class="fas fa-user-shield me-2"></i>Khu vực Quản trị</h5>
+    
     <ul class="nav nav-tabs mb-3" id="adminTabs">
         <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-post-news">Đăng Tin Tức</button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-post-doc">Đăng Tài Liệu</button></li>
@@ -19,8 +20,27 @@
                 </form>
             </div>
         </div>
+        
         <div class="tab-pane fade" id="tab-post-doc">
-            <div class="alert alert-info">Chức năng đang cập nhật tách file...</div>
+            <div class="card p-3 shadow-sm border-0">
+                <form id="admin-doc-form" onsubmit="app.postDocument(event)">
+                    <div class="mb-3"><label class="small fw-bold">Tên tài liệu / Văn bản</label><input type="text" id="adm-doc-title" class="form-control" required></div>
+                    <div class="mb-3">
+                        <label class="small fw-bold">Danh mục</label>
+                        <select id="adm-doc-cat" class="form-select">
+                            <option value="legal">Văn bản pháp luật</option>
+                            <option value="case">Tình huống / Sự cố</option>
+                            <option value="science">Bài báo khoa học</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="small fw-bold">File đính kèm (PDF)</label>
+                        <input type="file" id="adm-doc-file" class="form-control" accept="application/pdf" required>
+                    </div>
+                    <div class="mb-3"><label class="small fw-bold">Tóm tắt nội dung</label><textarea id="adm-doc-summary" class="form-control" rows="4" required></textarea></div>
+                    <button type="submit" class="btn btn-success w-100"><i class="fas fa-file-upload me-2"></i>Lưu Tài Liệu</button>
+                </form>
+            </div>
         </div>
     </div>
 </div>
