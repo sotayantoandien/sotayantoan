@@ -12,11 +12,20 @@ const app = {
     state: { 
         currentUser: null, 
         userProfile: null,
-        newsCache: [] // Lưu danh sách tin để không phải tải lại khi xem chi tiết
+        newsCache: [] 
     },
     
     // --- NAVIGATION LOGIC (CHUYỂN TRANG) ---
     loadPage: async function(pageName) {
+        // --- BẢO MẬT: CHẶN TRUY CẬP ADMIN ---
+        if (pageName === 'admin') {
+            if (!app.state.userProfile || app.state.userProfile.role !== 'admin') {
+                alert("Bạn không có quyền truy cập khu vực này!");
+                return app.loadPage('news'); // Đá về trang tin tức
+            }
+        }
+        // -------------------------------------
+
         const container = document.getElementById('app-container');
         const mainLayout = document.getElementById('main-layout');
         const mainContent = document.getElementById('main-content');
@@ -29,12 +38,10 @@ const app = {
         }
 
         try {
-            // Tải file HTML từ thư mục pages/
             const response = await fetch(`pages/${pageName}.html`);
             if(!response.ok) throw new Error('Page not found');
             const html = await response.text();
 
-            // Xử lý hiển thị
             if (pageName === 'login' || pageName === 'profile') {
                 mainLayout.style.display = 'none'; 
                 container.innerHTML = html; 
@@ -44,13 +51,16 @@ const app = {
                 mainLayout.style.display = 'block'; 
                 mainContent.innerHTML = html; 
                 
-                // Gọi hàm khởi tạo dữ liệu riêng cho từng trang
                 if(pageName === 'news') app.loadNewsData();
-                // Admin không cần init gì đặc biệt vì form đã có sẵn trong HTML
+                // Nếu là Admin, form đã có sẵn trong HTML, không cần load dữ liệu ban đầu
             }
+            
+            // Cập nhật Active Menu
+            document.querySelectorAll('.list-group-item').forEach(el => el.classList.remove('active'));
+            // (Bạn có thể thêm logic active class nếu muốn đẹp hơn)
+
         } catch (error) {
             console.error("Lỗi tải trang:", error);
-            alert("Không thể tải trang: " + pageName);
         }
     },
 
@@ -73,16 +83,19 @@ const app = {
                 app.state.userProfile = doc.data();
                 app.updateUI(app.state.userProfile, user);
                 
-                // Mặc định vào trang News
-                // Kiểm tra xem đang ở trang nào, nếu chưa có thì load news
+                // Mặc định vào trang News nếu đang chưa ở đâu
                 if(document.getElementById('main-layout').style.display === 'none') {
                     app.loadPage('news');
                 }
 
                 // Hiện menu Admin nếu đúng quyền
-                if (app.state.userProfile.role === 'admin') {
-                    const adminLink = document.getElementById('admin-menu-link');
-                    if(adminLink) adminLink.classList.remove('d-none');
+                const adminLink = document.getElementById('admin-menu-link');
+                if (adminLink) {
+                    if (app.state.userProfile.role === 'admin') {
+                        adminLink.classList.remove('d-none');
+                    } else {
+                        adminLink.classList.add('d-none'); // Ẩn kỹ nếu không phải admin
+                    }
                 }
             } else {
                 app.loadPage('profile');
@@ -139,6 +152,12 @@ const app = {
 
     logout: function() {
         auth.signOut();
+        // Reset state
+        app.state.currentUser = null;
+        app.state.userProfile = null;
+        // Ẩn menu admin ngay lập tức để tránh lộ khi login user khác
+        const adminLink = document.getElementById('admin-menu-link');
+        if(adminLink) adminLink.classList.add('d-none');
     },
 
     // --- DATA FUNCTIONS (NEWS) ---
@@ -150,17 +169,21 @@ const app = {
             const snap = await db.collection('news').orderBy('timestamp', 'desc').limit(20).get();
             if (snap.empty) { container.innerHTML = '<div class="text-center mt-3 text-muted">Chưa có tin tức nào.</div>'; return; }
 
-            app.state.newsCache = []; // Reset cache
+            app.state.newsCache = []; 
             let html = '';
             
             snap.forEach(doc => {
                 const d = doc.data();
-                d.id = doc.id; // Lưu ID để dùng khi bấm xem chi tiết
+                d.id = doc.id;
                 app.state.newsCache.push(d);
 
-                // Xử lý ảnh: Ưu tiên dùng link lh3 từ fileId
+                // --- SỬA LỖI ẢNH TẠI ĐÂY ---
                 let imgSrc = d.img;
-                if(d.fileId) imgSrc = `https://lh3.googleusercontent.com/d/$${d.fileId}`; // Sửa lại template string cho đúng
+                if(d.fileId) {
+                    // Cú pháp đúng: Phải có dấu $ và dùng link lh3
+                    imgSrc = `https://lh3.googleusercontent.com/d/${d.fileId}`;
+                }
+                // ---------------------------
 
                 const date = d.timestamp ? new Date(d.timestamp.seconds * 1000).toLocaleDateString('vi-VN') : '';
 
@@ -187,23 +210,22 @@ const app = {
         const item = app.state.newsCache.find(x => x.id === id);
         if (!item) return;
         
-        // Gán dữ liệu vào Modal (Modal nằm ở index.html)
         document.getElementById('detail-title').textContent = item.title;
         document.getElementById('detail-content').textContent = item.summary;
-        document.getElementById('detail-content').style.whiteSpace = "pre-line"; // Giữ xuống dòng
+        document.getElementById('detail-content').style.whiteSpace = "pre-line";
         
         let imgSrc = item.img;
-        if (item.fileId) imgSrc = `https://lh3.googleusercontent.com/d/$${item.fileId}`;
+        if (item.fileId) {
+            // Sửa lỗi ảnh trong Modal luôn
+            imgSrc = `https://lh3.googleusercontent.com/d/${item.fileId}`;
+        }
         document.getElementById('detail-img').src = imgSrc;
 
-        // Mở Modal Bootstrap
         const myModal = new bootstrap.Modal(document.getElementById('newsDetailModal'));
         myModal.show();
     },
 
-    // --- ADMIN FUNCTIONS (ĐĂNG BÀI) ---
-    
-    // 1. Hàm Upload file lên Google Apps Script
+    // --- ADMIN FUNCTIONS ---
     uploadFileToGAS: async function(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -217,7 +239,6 @@ const app = {
                 };
 
                 try {
-                    // Gọi đến Script URL từ file config.js
                     const response = await fetch(CONFIG.APPS_SCRIPT_URL, {
                         method: "POST",
                         body: JSON.stringify(payload)
@@ -237,7 +258,6 @@ const app = {
         });
     },
 
-    // 2. Xử lý Đăng Tin Tức
     postNews: async function(e) {
         e.preventDefault();
         const title = document.getElementById('adm-news-title').value;
@@ -246,18 +266,15 @@ const app = {
 
         if(fileInput.files.length === 0) return alert("Vui lòng chọn ảnh minh họa!");
 
-        // Hiện loading overlay
         document.getElementById('upload-overlay').style.display = 'flex';
 
         try {
-            // Bước 1: Upload ảnh
             const uploadResult = await app.uploadFileToGAS(fileInput.files[0]);
             
-            // Bước 2: Lưu vào Firestore
             await db.collection('news').add({
                 title: title, 
-                img: uploadResult.fileUrl, // Link backup
-                fileId: uploadResult.fileId, // ID để hiển thị tối ưu
+                img: uploadResult.fileUrl, 
+                fileId: uploadResult.fileId,
                 summary: summary,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
@@ -268,12 +285,10 @@ const app = {
             console.error(err);
             alert("Lỗi: " + err); 
         } finally {
-            // Tắt loading overlay
             document.getElementById('upload-overlay').style.display = 'none';
         }
     },
 
-    // 3. Xử lý Đăng Tài Liệu
     postDocument: async function(e) {
         e.preventDefault();
         const title = document.getElementById('adm-doc-title').value;
@@ -307,5 +322,4 @@ const app = {
     }
 };
 
-// Khởi chạy App
 app.init();
