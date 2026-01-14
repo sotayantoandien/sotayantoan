@@ -1,0 +1,32 @@
+<div class="auth-container">
+    <div class="auth-card">
+        <h5 class="text-evn fw-bold text-center mb-3">THÔNG TIN HỌC VIÊN</h5>
+        <p class="text-muted small text-center mb-4">Vui lòng cập nhật thông tin để tiếp tục.</p>
+        
+        <form id="profile-form" onsubmit="app.saveProfile(event)">
+            <div class="mb-3">
+                <label class="small fw-bold">Họ và tên <span class="text-danger">*</span></label>
+                <input type="text" id="pf-fullname" class="form-control" placeholder="Nguyễn Văn A" required>
+            </div>
+            
+            <div class="mb-3">
+                <label class="small fw-bold">Số điện thoại <span class="text-danger">*</span></label>
+                <input type="tel" id="pf-phone" class="form-control" pattern="[0-9]{10,11}" placeholder="090..." required>
+            </div>
+            
+            <div class="mb-3">
+                <label class="small fw-bold">Đơn vị công tác <span class="text-danger">*</span></label>
+                <input type="text" id="pf-workplace" class="form-control" placeholder="VD: Điện lực Thủ Đức" required>
+            </div>
+            
+            <div class="mb-3">
+                <label class="small fw-bold">Chức vụ <span class="text-danger">*</span></label>
+                <input type="text" id="pf-position" class="form-control" placeholder="VD: Công nhân vận hành" required>
+            </div>
+            
+            <button type="submit" class="btn btn-warning w-100 fw-bold text-dark mt-2">
+                LƯU & TRUY CẬP
+            </button>
+        </form>
+    </div>
+</div>
